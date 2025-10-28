@@ -78,13 +78,13 @@ public class SimpleFloodgateApi implements FloodgateApi {
     }
 
     @Override
-    public boolean isFloodgatePlayer(UUID uuid) {
+    public boolean isFloodgatePlayer(final UUID uuid) {
         return getPlayer(uuid) != null;
     }
 
     @Override
-    public FloodgatePlayer getPlayer(UUID uuid) {
-        FloodgatePlayer selfPlayer = players.get(uuid);
+    public FloodgatePlayer getPlayer(final UUID uuid) {
+        final FloodgatePlayer selfPlayer = players.get(uuid);
         if (selfPlayer != null) {
             return selfPlayer;
         }
@@ -96,7 +96,7 @@ public class SimpleFloodgateApi implements FloodgateApi {
         }
 
         // make it possible to find player by Java id (linked players)
-        for (FloodgatePlayer player : players.values()) {
+        for (final FloodgatePlayer player : players.values()) {
             if (player.getCorrectUniqueId().equals(uuid)) {
                 return player;
             }
@@ -106,76 +106,81 @@ public class SimpleFloodgateApi implements FloodgateApi {
     }
 
     @Override
-    public UUID createJavaPlayerId(long xuid) {
+    public UUID createJavaPlayerId(final long xuid) {
         return Utils.getJavaUuid(xuid);
     }
 
     @Override
-    public boolean isFloodgateId(UUID uuid) {
+    public boolean isFloodgateId(final UUID uuid) {
         return uuid.getMostSignificantBits() == 0;
     }
 
     @Override
-    public boolean sendForm(UUID uuid, Form form) {
+    public boolean sendForm(final UUID uuid, final Form form) {
         return pluginMessageManager.getChannel(FormChannel.class).sendForm(uuid, form);
     }
 
     @Override
-    public boolean sendForm(UUID uuid, FormBuilder<?, ?, ?> formBuilder) {
+    public boolean sendForm(final UUID uuid, final FormBuilder<?, ?, ?> formBuilder) {
         return sendForm(uuid, formBuilder.build());
     }
 
     @Override
-    public boolean transferPlayer(UUID uuid, String address, int port) {
+    public boolean closeForm(final UUID uuid) {
+        return pluginMessageManager.getChannel(FormChannel.class).closeForm(uuid);
+    }
+
+    @Override
+    public boolean transferPlayer(final UUID uuid, final String address, final int port) {
         return pluginMessageManager
                 .getChannel(TransferChannel.class)
                 .sendTransfer(uuid, address, port);
     }
 
     @Override
-    public CompletableFuture<Long> getXuidFor(String gamertag) {
+    public CompletableFuture<Long> getXuidFor(final String gamertag) {
         if (gamertag == null || gamertag.isEmpty() || gamertag.length() > 16) {
             return Utils.failedFuture(new IllegalStateException("Received an invalid gamertag"));
         }
 
         return httpClient.asyncGet(Constants.GET_XUID_URL + gamertag)
                 .thenApply(result -> {
-                    JsonObject response = result.getResponse();
+                    final JsonObject response = result.getResponse();
 
                     if (!result.isCodeOk()) {
                         throw new IllegalStateException(response.get("message").getAsString());
                     }
 
-                    JsonElement xuid = response.get("xuid");
+                    final JsonElement xuid = response.get("xuid");
                     return xuid != null ? xuid.getAsLong() : null;
                 });
     }
 
     @Override
-    public CompletableFuture<String> getGamertagFor(long xuid) {
+    public CompletableFuture<String> getGamertagFor(final long xuid) {
         return httpClient.asyncGet(Constants.GET_GAMERTAG_URL + xuid)
                 .thenApply(result -> {
-                    JsonObject response = result.getResponse();
+                    final JsonObject response = result.getResponse();
 
                     if (!result.isCodeOk()) {
                         throw new IllegalStateException(response.get("message").getAsString());
                     }
 
-                    JsonElement gamertag = response.get("gamertag");
+                    final JsonElement gamertag = response.get("gamertag");
                     return gamertag != null ? gamertag.getAsString() : null;
                 });
     }
 
     @Override
     public final Unsafe unsafe() {
-        String callerClass = Thread.currentThread().getStackTrace()[2].getClassName();
+        final String callerClass = Thread.currentThread().getStackTrace()[2].getClassName();
         logger.warn("A plugin is trying to access an unsafe part of the Floodgate api!" +
                 " The use of this api can result in client crashes if used incorrectly." +
                 " Caller: " + callerClass);
         return new UnsafeFloodgateApi(pluginMessageManager);
     }
 
-    public FloodgatePlayer addPlayer(FloodgatePlayer player) {
+    public FloodgatePlayer addPlayer(final FloodgatePlayer player) {
         // Bedrock players are always stored by their xuid
         return players.put(player.getJavaUniqueId(), player);
     }
@@ -184,26 +189,26 @@ public class SimpleFloodgateApi implements FloodgateApi {
      * This method is invoked when the player is no longer on the server, but the related platform-
      * dependant event hasn't fired yet
      */
-    public boolean setPendingRemove(FloodgatePlayer player) {
+    public boolean setPendingRemove(final FloodgatePlayer player) {
         pendingRemove.put(player.getJavaUniqueId(), player);
         return players.remove(player.getJavaUniqueId(), player);
     }
 
-    public void playerRemoved(UUID correctUuid) {
+    public void playerRemoved(final UUID correctUuid) {
         // we can remove the player directly if it is a Floodgate UUID.
         // since it's stored by their Floodgate UUID
         if (isFloodgateId(correctUuid)) {
             pendingRemove.invalidate(correctUuid);
             return;
         }
-        FloodgatePlayer linkedPlayer = getPendingRemovePlayer(correctUuid);
+        final FloodgatePlayer linkedPlayer = getPendingRemovePlayer(correctUuid);
         if (linkedPlayer != null) {
             pendingRemove.invalidate(linkedPlayer.getJavaUniqueId());
         }
     }
 
-    private FloodgatePlayer getPendingRemovePlayer(UUID correctUuid) {
-        for (FloodgatePlayer player : pendingRemove.asMap().values()) {
+    private FloodgatePlayer getPendingRemovePlayer(final UUID correctUuid) {
+        for (final FloodgatePlayer player : pendingRemove.asMap().values()) {
             if (player.getCorrectUniqueId().equals(correctUuid)) {
                 return player;
             }

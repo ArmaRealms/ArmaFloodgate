@@ -97,6 +97,8 @@ public interface FloodgateApi {
 
     boolean sendForm(UUID uuid, FormBuilder<?, ?, ?> formBuilder);
 
+    boolean closeForm(UUID uuid);
+
     boolean transferPlayer(UUID uuid, String address, int port);
 
     /**
@@ -117,7 +119,7 @@ public interface FloodgateApi {
      * @return the xuid of the player with the given gamertag, or null when there is no player with
      * the given gamertag
      */
-    default CompletableFuture<UUID> getUuidFor(String gamertag) {
+    default CompletableFuture<UUID> getUuidFor(final String gamertag) {
         return getXuidFor(gamertag).thenApply(xuid -> {
             if (xuid == null) {
                 return null;
