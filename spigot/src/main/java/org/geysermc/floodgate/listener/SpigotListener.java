@@ -35,12 +35,19 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.geysermc.floodgate.api.SimpleFloodgateApi;
 import org.geysermc.floodgate.api.logger.FloodgateLogger;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
+import org.geysermc.floodgate.pluginmessage.channel.FormChannel;
+import org.geysermc.floodgate.skin.SkinApplier;
 import org.geysermc.floodgate.util.LanguageManager;
+import org.geysermc.floodgate.util.MojangUtils;
 
 public final class SpigotListener implements Listener {
     @Inject private SimpleFloodgateApi api;
     @Inject private LanguageManager languageManager;
     @Inject private FloodgateLogger logger;
+
+    @Inject private MojangUtils mojangUtils;
+    @Inject private SkinApplier skinApplier;
+    @Inject private FormChannel formChannel;
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -57,11 +64,27 @@ public final class SpigotListener implements Listener {
                     player.getCorrectUsername(), player.getCorrectUniqueId()
             );
             languageManager.loadLocale(player.getLanguageCode());
+
+            // If the player is linked, we need to look up the skin
+            if (player.isLinked()) {
+                mojangUtils.skinFor(player.getCorrectUniqueId()).whenComplete((skin, exception) -> {
+                    if (exception != null) {
+                        logger.debug("Unexpected skin fetch error for " + player.getCorrectUniqueId(), exception);
+                        return;
+                    }
+                    skinApplier.applySkin(player, skin, true);
+                });
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
+        FloodgatePlayer player = api.getPendingRemovePlayer(event.getPlayer().getUniqueId());
+        if (player != null) {
+            formChannel.disconnect(player);
+        }
+
         api.playerRemoved(event.getPlayer().getUniqueId());
     }
 }
