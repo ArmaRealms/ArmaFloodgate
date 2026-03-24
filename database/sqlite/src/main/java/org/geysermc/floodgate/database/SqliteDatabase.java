@@ -25,6 +25,8 @@
 
 package org.geysermc.floodgate.database;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,8 +39,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.floodgate.api.link.LinkRequest;
 import org.geysermc.floodgate.api.link.LinkRequestResult;
@@ -50,7 +50,7 @@ public class SqliteDatabase extends CommonPlayerLink {
     private final Map<String, LinkRequest> activeLinkRequests = new HashMap<>();
     private Connection connection;
 
-    /* These are DELIBERATELY javax imports so Guice relocations can't break it */
+    /* Using jakarta.inject for Guice 6.0.0+ compatibility (javax.inject is optional in Guice 6+) */
     @Inject
     @Named("dataDirectory")
     private Path dataDirectory;
