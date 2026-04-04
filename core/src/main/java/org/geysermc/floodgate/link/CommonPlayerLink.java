@@ -28,6 +28,7 @@ package org.geysermc.floodgate.link;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import java.nio.file.Path;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -100,6 +101,16 @@ public abstract class CommonPlayerLink implements PlayerLink {
     @Override
     public String getName() {
         return injectorHolder.get().getInstance(Key.get(String.class, Names.named("databaseName")));
+    }
+
+    /**
+     * Get the data directory that Floodgate uses to store its files.
+     * Database implementations can use this to resolve their database file paths.
+     *
+     * @return the Floodgate data directory
+     */
+    protected Path getDataDirectory() {
+        return injectorHolder.get().getInstance(Key.get(Path.class, Names.named("dataDirectory")));
     }
 
     @Override

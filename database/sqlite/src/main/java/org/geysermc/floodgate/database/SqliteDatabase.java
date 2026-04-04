@@ -25,8 +25,6 @@
 
 package org.geysermc.floodgate.database;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -50,14 +48,9 @@ public class SqliteDatabase extends CommonPlayerLink {
     private final Map<String, LinkRequest> activeLinkRequests = new HashMap<>();
     private Connection connection;
 
-    /* Using jakarta.inject for Guice 6.0.0+ compatibility (javax.inject is optional in Guice 6+) */
-    @Inject
-    @Named("dataDirectory")
-    private Path dataDirectory;
-
     @Override
     public void load() {
-        final Path databasePath = dataDirectory.resolve("linked-players.db");
+        final Path databasePath = getDataDirectory().resolve("linked-players.db");
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
