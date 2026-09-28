@@ -15,13 +15,12 @@ allprojects {
 }
 
 val deployProjects = setOf(
-    projects.api,
-    // for future Floodgate integration + Fabric
-    projects.core,
-    projects.bungee,
-    projects.spigot,
-    projects.velocity
-).map { it.dependencyProject }
+    project(":api"),
+    project(":core"),
+    project(":bungee"),
+    project(":spigot"),
+    project(":velocity")
+)
 
 //todo re-add checkstyle when we switch back to 2 space indention
 // and take a look again at spotbugs someday
