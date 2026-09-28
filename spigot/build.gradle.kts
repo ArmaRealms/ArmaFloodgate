@@ -2,14 +2,6 @@ var authlibVersion = "1.5.21"
 var guavaVersion = "21.0"
 var gsonVersion = "2.8.5"
 
-indra {
-    javaVersions {
-        // For Folia
-        target(8)
-        minimumToolchain(17)
-    }
-}
-
 dependencies {
     api(projects.core)
 
@@ -19,7 +11,7 @@ dependencies {
 
     compileOnlyApi("dev.folia", "folia-api", Versions.spigotVersion) {
         attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
         }
     }
 }
