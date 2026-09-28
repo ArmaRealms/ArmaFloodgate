@@ -32,7 +32,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.geysermc.floodgate.platform.listener.ListenerRegistration;
 
-@RequiredArgsConstructor(onConstructor = @__(@Inject))
+@RequiredArgsConstructor(onConstructor_ = @Inject)
 public final class SpigotListenerRegistration implements ListenerRegistration<Listener> {
     private final JavaPlugin plugin;
 

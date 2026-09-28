@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("floodgate.base-conventions")
-    id("com.github.johnrengelman.shadow")
+    id("com.gradleup.shadow")
 }
 
 tasks {
@@ -55,5 +55,5 @@ fun addRelocations(project: Project, shadowJar: ShadowJar) {
 fun callAddRelocations(configuration: Configuration, shadowJar: ShadowJar) =
     configuration.dependencies.forEach {
         if (it is ProjectDependency)
-            addRelocations(it.dependencyProject, shadowJar)
+            addRelocations(project.rootProject.project(it.path), shadowJar)
     }

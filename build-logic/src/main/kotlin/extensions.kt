@@ -23,11 +23,9 @@
  * @link https://github.com/GeyserMC/Floodgate
  */
 
-import net.kyori.indra.git.IndraGitExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.kotlin.dsl.add
-import org.gradle.kotlin.dsl.the
 
 fun Project.fullVersion(): String {
     var version = version.toString()
@@ -38,10 +36,12 @@ fun Project.fullVersion(): String {
 }
 
 fun Project.lastCommitHash(): String? =
-    the<IndraGitExtension>().commit()?.name?.substring(0, 7)
+    System.getenv("GITHUB_SHA")?.takeIf(String::isNotBlank)?.take(7)
 
 fun Project.branchName(): String =
-    the<IndraGitExtension>().branchName() ?: jenkinsBranchName() ?: "local/dev"
+    System.getenv("GITHUB_HEAD_REF")?.takeIf(String::isNotBlank)
+        ?: System.getenv("GITHUB_REF_NAME")?.takeIf(String::isNotBlank)
+        ?: jenkinsBranchName() ?: "local/dev"
 
 fun Project.shouldAddBranchName(): Boolean =
     System.getenv("IGNORE_BRANCH")?.toBoolean() ?: (branchName() !in arrayOf("master", "local/dev"))

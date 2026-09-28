@@ -18,9 +18,10 @@ indra {
     mitLicense()
 
     javaVersions {
-        // without toolchain & strictVersion sun.misc.Unsafe won't be found
-        minimumToolchain(8)
+        // Compile each Java module with the Java 25 toolchain and bytecode target.
+        minimumToolchain(25)
         strictVersions(true)
+        target(25)
     }
 }
 
@@ -31,7 +32,7 @@ tasks {
                 "id" to "floodgate",
                 "name" to "floodgate",
                 "version" to fullVersion(),
-                "description" to project.description,
+                "description" to project.description.orEmpty(),
                 "url" to "https://geysermc.org",
                 "author" to "GeyserMC"
             )
