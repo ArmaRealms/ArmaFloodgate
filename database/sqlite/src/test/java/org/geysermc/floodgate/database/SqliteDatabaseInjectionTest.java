@@ -7,6 +7,10 @@ import com.google.inject.name.Names;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.logger.FloodgateLogger;
 import org.geysermc.floodgate.config.FloodgateConfig;
@@ -22,7 +26,7 @@ class SqliteDatabaseInjectionTest {
     Path dataDirectory;
 
     @Test
-    void guiceProvidesDataDirectoryBeforeDatabaseIsLoaded() {
+    void guiceProvidesDataDirectoryBeforeDatabaseIsLoaded() throws SQLException {
         final FloodgateConfig config = new FloodgateConfig() {
             @Override
             public PlayerLinkConfig getPlayerLink() {
@@ -44,7 +48,13 @@ class SqliteDatabaseInjectionTest {
         final SqliteDatabase database = injector.getInstance(SqliteDatabase.class);
         try {
             database.load();
-            assertTrue(Files.isRegularFile(dataDirectory.resolve("linked-players.db")));
+            final Path databasePath = dataDirectory.resolve("linked-players.db");
+            assertTrue(Files.isRegularFile(databasePath));
+            try (Connection verification = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+                 ResultSet tables = verification.getMetaData()
+                         .getTables(null, null, "LinkedPlayers", null)) {
+                assertTrue(tables.next(), "SQLite schema must have been initialized");
+            }
         } finally {
             database.stop();
         }
