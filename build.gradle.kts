@@ -4,6 +4,10 @@ plugins {
     id("io.freefair.lombok") version "9.7.0" apply false
 }
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
 allprojects {
     group = "org.geysermc.floodgate"
     version = property("version")!!
