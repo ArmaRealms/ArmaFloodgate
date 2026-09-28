@@ -9,11 +9,10 @@ dependencies {
     // hack to make pre 1.12 work
     implementation("com.google.guava", "guava", guavaVersion)
 
-    // Needed by Cloud Brigadier signatures when compiling with javac 25.\n    compileOnly("com.mojang:brigadier:1.0.18")\n\n    compileOnlyApi("dev.folia", "folia-api", Versions.spigotVersion) {
-        attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
-        }
-    }
+    // Needed by Cloud Brigadier signatures when compiling with javac 25.
+    compileOnly("com.mojang:brigadier:1.0.18")
+
+    compileOnlyApi("dev.folia", "folia-api", Versions.spigotVersion)
 }
 
 relocate("com.google.inject")
